@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Loan Payment Checklist</title>
@@ -7,82 +6,84 @@
   <meta name="theme-color" content="#121212" />
   <link rel="manifest" href="manifest.json" />
   <base href="/Utang/" />
+  <link rel="icon" href="icon.png" type="image/png">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('service-worker.js');
       });
-    }
+    }function saveAllCheckboxStates() {
+  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+  const state = {};
+  checkboxes.forEach((box, i) => {
+    state[i] = box.checked;
+  });
+  localStorage.setItem('checkboxes', JSON.stringify(state));
+}
 
-    function saveAllCheckboxStates() {
-      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-      const state = {};
-      checkboxes.forEach((box, i) => {
-        state[i] = box.checked;
-      });
-      localStorage.setItem('checkboxes', JSON.stringify(state));
-    }
+function loadAllCheckboxStates() {
+  const saved = JSON.parse(localStorage.getItem('checkboxes') || '{}');
+  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+  checkboxes.forEach((box, i) => {
+    box.checked = !!saved[i];
+  });
+}
 
-    function loadAllCheckboxStates() {
-      const saved = JSON.parse(localStorage.getItem('checkboxes') || '{}');
-      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-      checkboxes.forEach((box, i) => {
-        box.checked = !!saved[i];
-      });
-    }
+function addLoanSection() {
+  const name = prompt('Loan Name:');
+  const amount = prompt('Monthly Amount (₱):');
+  const months = prompt('Number of Months:');
 
-    function addLoanSection() {
-      const name = prompt('Loan Name:');
-      const amount = prompt('Monthly Amount (₱):');
-      const months = prompt('Number of Months:');
+  if (!name || !amount || !months) return;
 
-      if (!name || !amount || !months) return;
+  const container = document.getElementById('loan-container');
+  const wrapper = document.createElement('div');
+  wrapper.className = 'loan-wrapper';
 
-      const container = document.getElementById('loan-container');
-      const wrapper = document.createElement('div');
-      wrapper.className = 'loan-wrapper';
+  const heading = document.createElement('h2');
+  heading.textContent = name;
 
-      const heading = document.createElement('h2');
-      heading.textContent = name;
+  const delBtn = document.createElement('button');
+  delBtn.textContent = '🗑️ Delete';
+  delBtn.onclick = () => container.removeChild(wrapper);
+  delBtn.className = 'delete-btn';
 
-      const delBtn = document.createElement('button');
-      delBtn.textContent = '🗑️ Delete';
-      delBtn.onclick = () => container.removeChild(wrapper);
-      delBtn.className = 'delete-btn';
+  const table = document.createElement('table');
+  table.innerHTML = `<tr><th>Month</th><th>Amount</th><th>Paid</th></tr>`;
 
-      const table = document.createElement('table');
-      table.innerHTML = `<tr><th>Month</th><th>Amount</th><th>Paid</th></tr>`;
+  for (let i = 1; i <= parseInt(months); i++) {
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>Month ${i}</td><td>₱${amount}</td><td><input type="checkbox"></td>`;
+    table.appendChild(row);
+  }
 
-      for (let i = 1; i <= parseInt(months); i++) {
-        const row = document.createElement('tr');
-        row.innerHTML = `<td>Month ${i}</td><td>₱${amount}</td><td><input type="checkbox"></td>`;
-        table.appendChild(row);
-      }
+  wrapper.appendChild(heading);
+  wrapper.appendChild(delBtn);
+  wrapper.appendChild(table);
+  container.appendChild(wrapper);
 
-      wrapper.appendChild(heading);
-      wrapper.appendChild(delBtn);
-      wrapper.appendChild(table);
-      container.appendChild(wrapper);
+  wrapper.querySelectorAll('input[type="checkbox"]').forEach(box => {
+    box.addEventListener('change', saveAllCheckboxStates);
+  });
 
-      wrapper.querySelectorAll('input[type="checkbox"]').forEach(box => {
-        box.addEventListener('change', saveAllCheckboxStates);
-      });
+  saveAllCheckboxStates();
+}
 
+document.addEventListener('DOMContentLoaded', () => {
+  loadAllCheckboxStates();
+  document.addEventListener('change', e => {
+    if (e.target.type === 'checkbox') {
       saveAllCheckboxStates();
     }
+  });
 
-    document.addEventListener('DOMContentLoaded', () => {
-      loadAllCheckboxStates();
-      document.querySelectorAll('input[type="checkbox"]').forEach(box => {
-        box.addEventListener('change', saveAllCheckboxStates);
-      });
-
-      if (navigator.storage && navigator.storage.persist) {
-        navigator.storage.persist().then(granted => {
-          console.log(granted ? "✅ Persistent storage granted" : "❌ Persistent storage denied");
-        });
-      }
+  if (navigator.storage && navigator.storage.persist) {
+    navigator.storage.persist().then(granted => {
+      console.log(granted ? "✅ Persistent storage granted" : "❌ Persistent storage denied");
     });
+  }
+});
+
   </script>
   <style>
     body {
