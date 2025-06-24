@@ -13,17 +13,20 @@
       });
     }
 
-    function saveCheckboxState() {
+    function saveAllCheckboxStates() {
       const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+      const state = {};
       checkboxes.forEach((box, i) => {
-        localStorage.setItem('checkbox_' + i, box.checked);
+        state[i] = box.checked;
       });
+      localStorage.setItem('checkboxes', JSON.stringify(state));
     }
 
-    function loadCheckboxState() {
+    function loadAllCheckboxStates() {
+      const saved = JSON.parse(localStorage.getItem('checkboxes') || '{}');
       const checkboxes = document.querySelectorAll('input[type="checkbox"]');
       checkboxes.forEach((box, i) => {
-        box.checked = localStorage.getItem('checkbox_' + i) === 'true';
+        box.checked = !!saved[i];
       });
     }
 
@@ -60,14 +63,26 @@
       wrapper.appendChild(table);
       container.appendChild(wrapper);
 
-      saveCheckboxState();
+      // Re-bind checkboxes to save state
+      wrapper.querySelectorAll('input[type="checkbox"]').forEach(box => {
+        box.addEventListener('change', saveAllCheckboxStates);
+      });
+
+      saveAllCheckboxStates();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      loadCheckboxState();
+      loadAllCheckboxStates();
       document.querySelectorAll('input[type="checkbox"]').forEach(box => {
-        box.addEventListener('change', saveCheckboxState);
+        box.addEventListener('change', saveAllCheckboxStates);
       });
+
+      // Ask browser to allow persistent local storage
+      if (navigator.storage && navigator.storage.persist) {
+        navigator.storage.persist().then(granted => {
+          console.log(granted ? "✅ Persistent storage granted" : "❌ Persistent storage denied");
+        });
+      }
     });
   </script>
   <style>
