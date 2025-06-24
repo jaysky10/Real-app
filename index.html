@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#121212" />
   <link rel="manifest" href="manifest.json" />
+  <base href="/Utang/" />
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -63,7 +64,6 @@
       wrapper.appendChild(table);
       container.appendChild(wrapper);
 
-      // Re-bind checkboxes to save state
       wrapper.querySelectorAll('input[type="checkbox"]').forEach(box => {
         box.addEventListener('change', saveAllCheckboxStates);
       });
@@ -77,7 +77,6 @@
         box.addEventListener('change', saveAllCheckboxStates);
       });
 
-      // Ask browser to allow persistent local storage
       if (navigator.storage && navigator.storage.persist) {
         navigator.storage.persist().then(granted => {
           console.log(granted ? "✅ Persistent storage granted" : "❌ Persistent storage denied");
